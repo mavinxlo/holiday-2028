@@ -3,270 +3,180 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>2026-2028 我要快閃旅行! (手機優化版)</title>
+    <title>2026-2028 旅行月曆 (終極修復版)</title>
     <style>
         :root {
-            --bg-body: #f0f2f5;
-            --primary: #0056b3;
-            --accent: #ff9800;
-            --holiday-red: #ff4d4f;
-            --saturday-blue: #e6f7ff;
-            --sunday-pink: #fff1f0;
-            --text-main: #262626;
-            --white: #ffffff;
+            --bg: #f4f7f9; --pri: #0056b3; --acc: #ff9800; --today: #28a745;
+            --red: #ff4d4f; --sat: #e6f7ff; --sun: #fff1f0; --white: #ffffff;
         }
+        body { font-family: sans-serif; background-color: var(--bg); margin: 0; padding: 0; scroll-behavior: smooth; }
+        
+        /* 頂部導航 */
+        .nav { position: sticky; top: 0; z-index: 1000; background: var(--white); box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 8px 0; }
+        .nav-in { max-width: 500px; margin: 0 auto; padding: 0 10px; }
+        .row { display: flex; gap: 4px; margin-bottom: 8px; }
+        .y-btn { flex: 1; padding: 10px 0; border: 2px solid var(--pri); background: white; color: var(--pri); border-radius: 6px; font-weight: bold; font-size: 0.85rem; cursor: pointer; }
+        .y-btn.active { background: var(--pri); color: white !important; }
+        .t-btn { flex: 0 0 60px; padding: 10px 0; border: 2px solid var(--today); background: white; color: var(--today); border-radius: 6px; font-weight: bold; font-size: 0.85rem; cursor: pointer; }
+        .g-btn { flex: 0 0 75px; padding: 10px 0; border: 2px solid var(--acc); background: var(--acc); color: white; border-radius: 6px; font-weight: bold; font-size: 0.85rem; cursor: pointer; }
+        .m-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; }
+        .m-btn { padding: 8px 0; border: none; background: #eee; border-radius: 4px; font-size: 0.75rem; font-weight: bold; color: #666; cursor: pointer; }
+        .m-btn.active { background: var(--acc); color: white !important; }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background-color: var(--bg-body);
-            color: var(--text-main);
-            margin: 0;
-            padding: 10px; /* 手機端邊距縮小 */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+        /* 月曆內容 */
+        .cont { max-width: 500px; margin: 0 auto; padding: 10px; }
+        .card { background: white; border-radius: 12px; padding: 15px; margin-bottom: 25px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); scroll-margin-top: 145px; }
+        .card-h { font-size: 1.3rem; color: var(--pri); margin: 0 0 10px 0; border-bottom: 2px solid #eee; padding-bottom: 5px; text-align: center; }
+        .d-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+        .lab { font-size: 0.7rem; color: #aaa; text-align: center; padding-bottom: 5px; font-weight: bold; }
+        .day { aspect-ratio: 1/1; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 6px; font-size: 1rem; font-weight: 600; position: relative; }
+        .today-mk { border: 2px solid var(--pri); }
+        .sat { background-color: var(--sat); color: var(--pri); }
+        .sun { background-color: var(--sun); color: var(--red); }
+        .hol { background-color: var(--red) !important; color: white !important; }
+        .h-txt { font-size: 9px; position: absolute; bottom: 1px; width: 100%; text-align: center; transform: scale(0.75); white-space: nowrap; overflow: hidden; }
 
-        .header {
-            text-align: center;
-            margin-bottom: 15px;
-            background: var(--white);
-            padding: 15px;
-            border-radius: 12px;
-            width: 100%;
-            box-sizing: border-box;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-
-        h1 { margin: 0; color: var(--primary); font-size: 1.5rem; }
-        .legend { margin-top: 8px; font-size: 0.8rem; display: flex; justify-content: center; gap: 10px; }
-        .legend span { display: flex; align-items: center; gap: 3px; }
-        .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
-
-        /* 年份切換 - 手機適配 */
-        .year-selector {
-            display: flex;
-            width: 100%;
-            gap: 8px;
-            margin-bottom: 15px;
-        }
-
-        .year-btn {
-            flex: 1; /* 三個按鈕平分寬度 */
-            padding: 12px 0;
-            font-size: 1.1rem;
-            cursor: pointer;
-            border: 2px solid var(--primary);
-            background: var(--white);
-            color: var(--primary);
-            border-radius: 10px;
-            font-weight: bold;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .year-btn.active {
-            background: var(--primary);
-            color: var(--white);
-        }
-
-        /* 月份導覽 - 3行4列或2行6列 */
-        .month-nav {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 6px;
-            width: 100%;
-            margin-bottom: 15px;
-        }
-
-        .month-btn {
-            padding: 10px 0;
-            cursor: pointer;
-            background: var(--white);
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 0.9rem;
-        }
-
-        .month-btn.active {
-            background: var(--accent);
-            color: var(--white);
-            border-color: var(--accent);
-        }
-
-        /* 日曆主卡片 - 寬度 100% */
-        .calendar-card {
-            background: var(--white);
-            padding: 15px;
-            border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            width: 100%;
-            box-sizing: border-box;
-            margin-bottom: 20px;
-        }
-
-        .month-title {
-            font-size: 1.8rem;
-            color: var(--primary);
-            text-align: center;
-            margin: 0 0 15px 0;
-        }
-
-        .days-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 4px;
-        }
-
-        .weekday-label {
-            font-weight: bold;
-            padding-bottom: 10px;
-            color: #999;
-            text-align: center;
-            font-size: 0.8rem;
-        }
-
-        .day {
-            aspect-ratio: 1/1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-        }
-
-        /* 顏色標記 */
-        .day.sat { background-color: var(--saturday-blue); color: var(--primary); }
-        .day.sun { background-color: var(--sunday-pink); color: var(--holiday-red); }
-        .day.holiday { background-color: var(--holiday-red) !important; color: white !important; }
-
-        .h-name {
-            font-size: 0.5rem;
-            transform: scale(0.85);
-            line-height: 1;
-            margin-top: 2px;
-            text-align: center;
-            width: 100%;
-            white-space: nowrap;
-            overflow: hidden;
-        }
-
-        /* 底部提醒 */
-        .footer-note {
-            font-size: 0.75rem;
-            color: #888;
-            text-align: center;
-            padding: 10px;
-        }
+        /* 攻略彈窗 */
+        #gOver { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; }
+        .g-box { position: absolute; bottom: 0; left: 0; width: 100%; max-height: 80%; background: white; border-radius: 20px 20px 0 0; padding: 20px; overflow-y: auto; box-sizing: border-box; }
+        .g-close { float: right; border: none; background: none; font-size: 1.5rem; color: #ccc; cursor: pointer; }
+        .g-tit { color: var(--pri); font-size: 1.2rem; margin-bottom: 15px; font-weight: bold; }
+        .g-item { display: flex; align-items: center; justify-content: space-between; padding: 15px 12px; border-bottom: 1px solid #eee; cursor: pointer; }
+        .g-val { color: var(--acc); font-weight: bold; font-size: 0.9rem; }
+        .g-yr { background: #f0f2f5; padding: 8px 12px; font-weight: bold; margin-top: 10px; border-radius: 4px; color: #333; }
     </style>
 </head>
 <body>
 
-<div class="header">
-    <h1>✈️又準備去旅行啦!</h1>
-    <div class="legend">
-        <span><i class="dot" style="background:var(--holiday-red)"></i>公假</span>
-        <span><i class="dot" style="background:var(--saturday-blue)"></i>週六</span>
-        <span><i class="dot" style="background:var(--sunday-pink)"></i>週日</span>
+<div class="nav">
+    <div class="nav-in">
+        <div class="row">
+            <button id="y2026" class="y-btn active" onclick="jump(2026, 1)">2026</button>
+            <button id="y2027" class="y-btn" onclick="jump(2027, 1)">2027</button>
+            <button id="y2028" class="y-btn" onclick="jump(2028, 1)">2028</button>
+            <button class="t-btn" onclick="goToday()">今日</button>
+            <button class="g-btn" onclick="showG(true)">攻略 ✈️</button>
+        </div>
+        <div id="mNav" class="m-grid"></div>
     </div>
 </div>
 
-<div class="year-selector">
-    <button class="year-btn active" onclick="setYear(2026)">2026</button>
-    <button class="year-btn" onclick="setYear(2027)">2027</button>
-    <button class="year-btn" onclick="setYear(2028)">2028</button>
-</div>
+<div id="calBody" class="cont"></div>
 
-<div class="month-nav" id="monthNav"></div>
+<!-- 攻略面板 -->
+<div id="gOver" onclick="showG(false)">
+    <div class="g-box" onclick="event.stopPropagation()">
+        <button class="g-close" onclick="showG(false)">✕</button>
+        <div class="g-tit">✈️ 2026-2028 請假攻略</div>
+        
+        <div class="g-yr">2026</div>
+        <div class="g-item" onclick="gJump(2026, 2)"><span>🧧 農曆新年</span> <span class="g-val">請 2 放 9</span></div>
+        <div class="g-item" onclick="gJump(2026, 4)"><span>🐰 復活節</span> <span class="g-val">請 4 放 10</span></div>
+        <div class="g-item" onclick="gJump(2026, 10)"><span>🇨🇳 國慶/重陽</span> <span class="g-val">請 3 放 9</span></div>
+        <div class="g-item" onclick="gJump(2026, 12)"><span>🎄 聖誕節</span> <span class="g-val">請 3 放 9</span></div>
 
-<div class="calendar-card">
-    <h2 class="month-title" id="displayMonth"></h2>
-    <div class="days-grid" id="daysGrid"></div>
-</div>
+        <div class="g-yr">2027</div>
+        <div class="g-item" onclick="gJump(2027, 2)"><span>🧧 農曆新年</span> <span class="g-val">請 3 放 9</span></div>
+        <div class="g-item" onclick="gJump(2027, 3)"><span>🐣 復活節</span> <span class="g-val">請 4 放 10</span></div>
+        <div class="g-item" onclick="gJump(2027, 12)"><span>⛄ 聖誕節</span> <span class="g-val">請 4 放 10</span></div>
 
-<div class="footer-note">
-    * 數據基於曆法推算，具體以政府憲報公布為準。
+        <div class="g-yr">2028</div>
+        <div class="g-item" onclick="gJump(2028, 1)"><span>🧧 農曆新年</span> <span class="g-val">請 2 放 9</span></div>
+        <div class="g-item" onclick="gJump(2028, 12)"><span>🎁 聖誕節</span> <span class="g-val">請 3 放 9</span></div>
+    </div>
 </div>
 
 <script>
-    let currentYear = 2026;
-    let currentMonth = 0;
-
-    const holidays = {
-        2026: { "01-01": "元旦", "02-17": "初一", "02-18": "初二", "02-19": "初三", "02-20": "初四補", "04-03": "受難節", "04-04": "受難翌", "04-06": "清明補", "05-01": "勞動節", "05-25": "佛誕", "06-19": "端午節", "07-01": "特區慶", "09-26": "中秋翌", "10-01": "國慶", "10-02": "國慶補", "10-19": "重陽節", "12-25": "聖誕節", "12-26": "周日補" },
-        2027: { "01-01": "元旦", "02-06": "初一", "02-08": "初三", "02-09": "初四補", "03-26": "受難節", "03-27": "受難翌", "03-29": "復活節", "04-05": "清明節", "05-01": "勞動節", "05-13": "佛誕", "06-09": "端午節", "07-01": "特區慶", "09-16": "中秋翌", "10-01": "國慶", "10-08": "重陽節", "12-25": "聖誕節", "12-27": "聖誕補" },
-        2028: { "01-01": "元旦", "01-26": "初一", "01-27": "初二", "01-28": "初三", "01-29": "初四補", "04-04": "清明節", "04-14": "受難節", "04-15": "受難翌", "04-17": "復活節", "05-01": "勞動節", "05-02": "佛誕", "05-29": "端午節", "07-01": "特區慶", "09-04": "中秋翌", "10-01": "國慶", "10-02": "國慶補", "10-26": "重陽節", "12-25": "聖誕節", "12-26": "周日補" }
+    var holidays = {
+        2026: { "01-01": "元旦", "02-17": "初一", "02-18": "初二", "02-19": "初三", "02-20": "初四補", "04-03": "受難節", "04-04": "受難翌", "04-06": "清明補", "05-01": "勞動節", "05-25": "佛誕", "06-19": "端午節", "07-01": "特區慶", "09-26": "中秋翌", "10-01": "國慶", "10-02": "國慶補", "10-19": "重陽節", "12-25": "聖誕節", "12-26": "節禮日" },
+        2027: { "01-01": "元旦", "02-06": "初一", "02-08": "初三", "02-09": "初四補", "03-26": "受難節", "03-27": "受難翌", "03-29": "復活節", "04-05": "清明補", "05-01": "勞動節", "05-13": "佛誕", "06-09": "端午節", "07-01": "特區慶", "09-16": "中秋翌", "10-01": "國慶", "10-08": "重陽節", "12-25": "聖誕節", "12-27": "聖誕補" },
+        2028: { "01-01": "元旦", "01-26": "初一", "01-27": "初二", "01-28": "初三", "01-29": "初四補", "04-04": "清明節", "04-14": "受難節", "04-15": "受難翌", "04-17": "復活節", "05-01": "勞動節", "05-02": "佛誕", "05-29": "端午節", "07-01": "特區慶", "09-04": "中秋翌", "10-02": "國慶補", "10-26": "重陽節", "12-25": "聖誕節", "12-26": "節禮日" }
     };
 
-    function init() {
-        const nav = document.getElementById('monthNav');
-        for (let i = 0; i < 12; i++) {
-            const btn = document.createElement('button');
-            btn.className = 'month-btn';
-            btn.innerText = (i + 1) + '月';
-            btn.onclick = () => setMonth(i);
-            nav.appendChild(btn);
-        }
-        updateView();
-    }
+    var now = new Date(), ty = now.getFullYear(), tm = now.getMonth()+1, td = now.getDate();
+    var isAuto = false;
 
-    function setYear(year) {
-        currentYear = year;
-        document.querySelectorAll('.year-btn').forEach(b => b.classList.toggle('active', b.innerText == year));
-        updateView();
-    }
-
-    function setMonth(m) {
-        currentMonth = m;
-        updateView();
-    }
-
-    function updateView() {
-        document.querySelectorAll('.month-btn').forEach((b, i) => b.classList.toggle('active', i === currentMonth));
-        document.getElementById('displayMonth').innerText = `${currentYear} / ${currentMonth + 1}`;
-        const daysGrid = document.getElementById('daysGrid');
-        daysGrid.innerHTML = '';
+    function build() {
+        var body = document.getElementById('calBody'), nav = document.getElementById('mNav');
+        var nH = '', bH = '';
         
-        ['日','一','二','三','四','五','六'].forEach((d, idx) => {
-            const el = document.createElement('div');
-            el.className = 'weekday-label';
-            if(idx === 0) el.style.color = 'var(--holiday-red)';
-            if(idx === 6) el.style.color = 'var(--primary)';
-            el.innerText = d;
-            daysGrid.appendChild(el);
-        });
-
-        const firstDay = new Date(currentYear, currentMonth, 1).getDay();
-        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-
-        for (let i = 0; i < firstDay; i++) daysGrid.appendChild(document.createElement('div'));
-
-        for (let d = 1; d <= daysInMonth; d++) {
-            const dateStr = `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-            const holidayKey = dateStr.substring(5);
-            const dayEl = document.createElement('div');
-            dayEl.className = 'day';
-            
-            const dateObj = new Date(currentYear, currentMonth, d);
-            const weekDay = dateObj.getDay();
-            if (weekDay === 0) dayEl.classList.add('sun');
-            if (weekDay === 6) dayEl.classList.add('sat');
-            
-            dayEl.innerHTML = `<span>${d}</span>`;
-
-            if (holidays[currentYear][holidayKey]) {
-                dayEl.classList.add('holiday');
-                const hSpan = document.createElement('span');
-                hSpan.className = 'h-name';
-                hSpan.innerText = holidays[currentYear][holidayKey];
-                dayEl.appendChild(hSpan);
-            }
-            daysGrid.appendChild(dayEl);
+        // 產生月份按鈕
+        for (var i = 1; i <= 12; i++) {
+            nH += '<button id="mb' + i + '" class="m-btn' + (i == 1 ? ' active' : '') + '" onclick="jumpToM(' + i + ')">' + i + '月</button>';
         }
+        nav.innerHTML = nH;
+
+        // 產生月曆卡片
+        var yrs = [2026, 2027, 2028];
+        for (var yi = 0; yi < yrs.length; yi++) {
+            var y = yrs[yi];
+            for (var m = 1; m <= 12; m++) {
+                bH += '<div class="card" id="c-' + y + '-' + m + '" data-y="' + y + '" data-m="' + m + '">';
+                bH += '<h2 class="card-h">' + y + '年 ' + m + '月</h2><div class="d-grid">';
+                var labs = ['日','一','二','三','四','五','六'];
+                for(var j=0; j<7; j++) bH += '<div class="lab">' + labs[j] + '</div>';
+                
+                var fDay = new Date(y, m-1, 1).getDay(), tDay = new Date(y, m, 0).getDate();
+                for(var s=0; s<fDay; s++) bH += '<div></div>';
+                for(var d=1; d<=tDay; d++) {
+                    var ds = (m < 10 ? '0' + m : m) + '-' + (d < 10 ? '0' + d : d);
+                    var wd = new Date(y, m-1, d).getDay();
+                    var cls = 'day';
+                    if(y == ty && m == tm && d == td) cls += ' today-mk';
+                    if(wd == 6) cls += ' sat'; if(wd == 0) cls += ' sun';
+                    var h = ''; 
+                    if(holidays[y] && holidays[y][ds]) { 
+                        cls += ' hol'; 
+                        h = '<div class="h-txt">' + holidays[y][ds] + '</div>'; 
+                    }
+                    bH += '<div class="' + cls + '">' + d + h + '</div>';
+                }
+                bH += '</div></div>';
+            }
+        }
+        body.innerHTML = bH;
+        setupSpy();
     }
-    init();
+
+    function jump(y, m) {
+        isAuto = true; updateUI(y, m);
+        var target = document.getElementById('c-' + y + '-' + m);
+        if(target) target.scrollIntoView();
+        setTimeout(function(){ isAuto = false; }, 600);
+    }
+
+    function jumpToM(m) {
+        var y = 2026, act = document.querySelector('.y-btn.active');
+        if(act) y = parseInt(act.id.replace('y',''));
+        jump(y, m);
+    }
+
+    function goToday() { if(ty >= 2026 && ty <= 2028) jump(ty, tm); else alert("不在範圍內"); }
+
+    function updateUI(y, m) {
+        var yBs = document.getElementsByClassName('y-btn');
+        for(var i=0; i<yBs.length; i++) yBs[i].className = (yBs[i].id == 'y' + y) ? 'y-btn active' : 'y-btn';
+        var mBs = document.getElementsByClassName('m-btn');
+        for(var j=0; j<mBs.length; j++) mBs[j].className = (mBs[j].id == 'mb' + m) ? 'm-btn active' : 'm-btn';
+    }
+
+    function setupSpy() {
+        window.onscroll = function() {
+            if (isAuto) return;
+            var cards = document.getElementsByClassName('card'), cur = null;
+            for (var i = 0; i < cards.length; i++) {
+                var rect = cards[i].getBoundingClientRect();
+                if (rect.top < 250) cur = cards[i];
+            }
+            if (cur) updateUI(cur.getAttribute('data-y'), cur.getAttribute('data-m'));
+        };
+    }
+
+    function showG(s) { document.getElementById('gOver').style.display = s ? 'block' : 'none'; }
+    function gJump(y, m) { showG(false); jump(y, m); }
+
+    window.onload = build;
 </script>
+
 </body>
 </html>
